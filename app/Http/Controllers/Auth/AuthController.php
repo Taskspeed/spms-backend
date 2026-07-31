@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Pmt\AccountEditRequest;
 use App\Http\Requests\PmtCreateRequest;
 use App\Http\Requests\SupervisorCreateRequest;
 use App\Models\Role;
@@ -81,19 +82,11 @@ class AuthController extends Controller
     }
 
     //  use edit and pmt account where they assign
-    public function edit(Request $request)
+    public function edit(AccountEditRequest $request)
     {
         $current_user = Auth::user();
         
-        $validated = $request->validate([
-            'userId'             => 'required|exists:users,id',
-            'roleId'             => 'required|exists:roles,id',
-            'active'             => 'required|boolean',
-            'office_id_assign'   => 'nullable|array',
-            'office_id_assign.*' => 'nullable|exists:offices,id',
-            'prefix'             =>  'nullable|string',
-            'suffix'             =>  'nullable|string',
-        ]);
+        $validated = $request->validated();
         $userEdit = $this->authService->edit($validated, $current_user);
 
         return $userEdit;
@@ -178,7 +171,6 @@ class AuthController extends Controller
 
         $account = User::where('role_id', 4)->where('office_id', $user->office_id)->get();
 
-
         if ($account->isEmpty()) {
             return $this->errorMessage('No data found', 404);
         }
@@ -206,7 +198,6 @@ class AuthController extends Controller
         $validated = $request->validate([
             'userId' => 'required|exists:users,id',
             'active' => 'required|boolean'
-
         ]);
 
         $userUpdateHead = $this->authService->updateHeadAccount($validated);
