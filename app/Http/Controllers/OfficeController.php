@@ -18,7 +18,6 @@ class OfficeController extends Controller
 
     public function __construct(OfficeService $officeService)
     {
-        // throw new \Exception('Not implemented');
 
         $this->officeService = $officeService;
     }
@@ -60,7 +59,6 @@ class OfficeController extends Controller
     {
 
         $data = $this->officeService->employeeRatingDraft($semester, $year);
-        // return ListOfEmployeeDraftRatingResource::collection($data);
         return $data;
     }
 }
