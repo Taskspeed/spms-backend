@@ -72,10 +72,6 @@ class OpcrController extends BaseController
 
         $opcr = $this->opcrService->updateAllotedBudget($validated);
 
-        return response()->json([
-            'message' => 'Opcr update successfully',
-             'data' =>$opcr
-
-         ]);
+        return $this->successMessage($opcr, 'Opcr update successfully', 200);
     }
 }
