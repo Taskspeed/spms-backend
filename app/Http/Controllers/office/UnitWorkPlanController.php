@@ -11,6 +11,7 @@ use App\Models\Employee;
 
 use App\Services\UnitWorkPlanService;
 
+use App\Traits\ApiResponseTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -19,7 +20,8 @@ use Illuminate\Support\Facades\Auth;
 
 class UnitWorkPlanController extends BaseController
 {
-
+    use ApiResponseTrait;
+ 
     protected ?Authenticatable $user = null;
     protected ?int $officeId = null;
     protected  UnitWorkPlanService $unitWorkPlanService;
@@ -37,6 +39,7 @@ class UnitWorkPlanController extends BaseController
     }
 
     // storing unit work plan
+    // storing unit work plan
     public function addUnitWorkPlan(addEmployeeUnitWorkPlanRequest $request)
     {
         $validated = $request->validated();
@@ -44,22 +47,13 @@ class UnitWorkPlanController extends BaseController
         try {
             $unitworkplan = $this->unitWorkPlanService->store($validated);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Unit Work Plans for all employees created successfully.',
-                'target_period' => $unitworkplan['target_period'],
-                'performance_standard' => $unitworkplan['performance_standard'],
-                'standard_outcome' => $unitworkplan['standard_outcome'],
-                'configuration' => $unitworkplan['configuration'],
-            ]);
+            return $this->successMessage($unitworkplan, 'Unit Work Plans for all employees created successfully.', 201);
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create Unit Work Plan.',
-                'error'   => $e->getMessage(),
-            ], 500);
+            return $this->errorMessage('Failed to create Unit Work Plan.', 500);
         }
     }
+
 
     // updating unit work plan
     // args controlno, semester, year
@@ -70,16 +64,7 @@ class UnitWorkPlanController extends BaseController
 
         $unitworkplan = $this->unitWorkPlanService->update($validated);
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Unit Work Plan updated successfully.',
-        //     'data' => $unitworkplan
-        // ]);
-          return response()->json([
-            'success' => true,
-            'message' => 'Unit Work Plan updated successfully.',
-            'data' => $unitworkplan
-        ]);
+        return $this->successMessage($unitworkplan, 'Unit Work Plan updated successfully.', 200);
     }
 
 
@@ -97,10 +82,7 @@ class UnitWorkPlanController extends BaseController
             ], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $employee
-        ]);
+        return $this->successMessage($employee, 'Employee found successfully.', 200);
     }
 
     
@@ -137,9 +119,7 @@ class UnitWorkPlanController extends BaseController
             ->firstOrFail();
 
         if (!$employee) {
-            return response()->json([
-                'message' => 'Employee not found or access denied'
-            ], 404);
+            return $this->errorMessage('Employee not found or access denied', 404);
         }
 
         // ✅ STEP 2: Find target period (Unit Work Plan)
@@ -149,19 +129,13 @@ class UnitWorkPlanController extends BaseController
             ->first();
 
         if (!$targetPeriod) {
-            return response()->json([
-                'message' => 'Unit Work Plan not found'
-            ], 404);
+            return $this->errorMessage('Unit Work Plan not found', 404);
         }
 
         // ✅ STEP 3: Delete target period
         $targetPeriod->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Unit Work Plan deleted successfully',
-            'data' => $targetPeriod,
-        ]);
+        return $this->successMessage($targetPeriod, 'Unit Work Plan deleted successfully', 200);
     }
 
     //  get the organization of the office - division - section - unit
