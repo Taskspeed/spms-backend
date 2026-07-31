@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers\office;
 
-use App\Models\mfo;
-use App\Models\User; // Ensure this is the Eloquent User model
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Library\MfoStoreRequest;
 use App\Http\Requests\Library\MfoUpdateRequest;
 use App\Models\F_category;
+use App\Models\mfo;
+use App\Models\User; // Ensure this is the Eloquent User model
 use App\Services\MfoService;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MfoController extends Controller
 {
+
+    use ApiResponseTrait;
 
     protected MfoService $mfoService;
 
@@ -43,25 +46,23 @@ class MfoController extends Controller
             ->causedBy(Auth::user())
             ->withProperties(['name' => $mfo->name])
             ->log('MFO Created');
-        return response()->json(['message' => 'MFO created successfully', 'mfo' => $mfo]);
+
+        return $this->successMessage($mfo, 'MFO created successfully', 201);
     }
 
     // update mfo
     public function updateMfo(MfoUpdateRequest $request, int $id) // update
     {
         $validated = $request->validated();
-        // find the MFO by id
 
         $mfo = $this->mfoService->update($id, $validated);
 
-        return response()->json([
-            'message' => 'MFO updated successfully',
-            'mfo' => $mfo->fresh() // Return fresh data from database
-        ]);
+        return $this->successMessage($mfo, 'MFO updated successfully', 200);
     }
 
     // Delete for MFO
-    public function delete(int $id){
+    public function delete(int $id)
+    {
 
         $mfos = mfo::findOrFail($id);
         $mfos->delete();
@@ -72,10 +73,8 @@ class MfoController extends Controller
             ->withProperties(['name' =>   $mfos->name])
             ->log('MFO soft deleted');
 
-        return response()->json(['message' => 'MFO soft deleted successfully']);
-
+        return $this->successMessage(null, 'MFO soft deleted successfully', 200);
     }
-
 
     // fetch all mfo of Department Head
     public function fetchMfo(string $semester, int $year)
@@ -83,6 +82,4 @@ class MfoController extends Controller
         $mfo = $this->mfoService->getMfo($semester, $year);
         return $mfo;
     }
-
-
 }
