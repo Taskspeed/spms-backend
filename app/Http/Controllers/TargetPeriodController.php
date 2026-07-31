@@ -6,41 +6,19 @@ use App\Events\TargetPeriodLockEvent;
 use App\Http\Requests\Library\TargetPeriodStoreRequest;
 use App\Http\Requests\Library\TargetPeriodUpdateRequest;
 use App\Models\TargetPeriodLib;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TargetPeriodController extends Controller
 {
-    //crud
-
-    // fetch target periods
-    // public function getTargetPeriods()
-    // {
-    //     $targetPeriods = DB::table('target_period_lib as tp')
-    //         ->leftJoin('target_period_locks as tpl', function ($join) {
-    //             $join->on('tp.semester', '=', 'tpl.semester')
-    //                 ->on('tp.year', '=', 'tpl.year');
-    //         })
-    //         ->select(
-    //             'tp.id',
-    //             'tp.semester',
-    //             'tp.year',
-    //             'tp.created_at',
-    //             'tp.updated_at',
-    //             'tpl.status',
-    //             'tpl.date',
-    //             'tpl.lock_by'
-    //         )
-    //         ->get();
-
-    //     return response()->json($targetPeriods);
-    // }
+    use ApiResponseTrait;
 
       public function getTargetPeriods()
     {
         $targetPeriod = TargetPeriodLib::select('id','year','semester')->get();
 
-        return response()->json($targetPeriod);
+        return $this->successMessage($targetPeriod, 'Target periods fetched successfully', 200);
     }
 
     // store target period
@@ -54,12 +32,7 @@ class TargetPeriodController extends Controller
 
         // TargetPeriodLockEvent::dispatch($targetPeriod, $user);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Target period created successfully',
-            'data' => $targetPeriod
-
-        ]);
+        return $this->successMessage($targetPeriod, 'Target period created successfully', 201);
     }
 
     // updating target period
@@ -71,12 +44,7 @@ class TargetPeriodController extends Controller
 
         $targetPeriod->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Target period updated successfully',
-            'data' => $targetPeriod
-
-        ]);
+        return $this->successMessage($targetPeriod, 'Target period updated successfully', 200);
     }
 
     // delete target period
@@ -86,10 +54,6 @@ class TargetPeriodController extends Controller
 
         $targetPeriod->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Target period deleted successfully',
-            'data' => $targetPeriod
-        ]);
+        return $this->successMessage(null, 'Target period deleted successfully', 200);
     }
 }
