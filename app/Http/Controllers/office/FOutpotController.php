@@ -8,13 +8,15 @@ use App\Http\Requests\Library\OutputRequest;
 use App\Http\Requests\Library\OutputUpdateRequest;
 use App\Models\F_outpot;
 use App\Services\OutputService;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Output\Output;
 
 class FOutpotController extends Controller
 {
-
+    use ApiResponseTrait;
+    
     protected OutputService $outputService;
 
     public function __construct( OutputService $outputService)
@@ -29,10 +31,7 @@ class FOutpotController extends Controller
 
         $output = $this->outputService->store($validated);
 
-        return response()->json([
-            'message' => 'Output created successfully',
-            'output' => $output
-        ]);
+        return $this->successMessage($output, 'Output created successfully', 201);
     }
 
     // update output
@@ -43,10 +42,7 @@ class FOutpotController extends Controller
 
         $output = $this->outputService->update($validated, $id);
 
-        return response()->json([
-            'message' => 'Output created successfully',
-            'output' => $output
-        ]);
+        return $this->successMessage($output, 'Output updated successfully', 200);
     }
 
     // Delete for outputs
@@ -61,7 +57,7 @@ class FOutpotController extends Controller
             ->withProperties(['name' =>  $output->name])
             ->log('Output deleted');
 
-        return response()->json(['message' => 'Output deleted successfully']);
+      return $this->successMessage(null, 'Output deleted successfully', 200);
     }
 
 
