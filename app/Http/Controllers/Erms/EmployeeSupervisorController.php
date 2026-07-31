@@ -23,7 +23,6 @@ class EmployeeSupervisorController extends Controller
     }
 
     // get employee information
-   // get employee information
     public function employeeInformation(string $controlNo)
     {
         $employee = Employee::select('id', 'ControlNo', 'name', 'job_title', 'status')
@@ -72,9 +71,5 @@ class EmployeeSupervisorController extends Controller
                 'message' => $e->getMessage(),
             ], 404);
         }
-
-        // $data =  $this->employeeSupervisorService->getListOfEmployeeBaseOnSupervisor($year, $semester, $controlNo);
-
-        // return $this->successMessage($data, 'Successfully', 200);
     }
 }
