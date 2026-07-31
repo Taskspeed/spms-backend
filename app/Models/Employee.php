@@ -63,11 +63,6 @@ class Employee extends Model
         return $this->hasMany(TargetPeriod::class, 'control_no', 'ControlNo');
     }
 
-    // public function unitWorkPlans()
-    // {
-    //     return $this->hasMany(Unit_work_plan::class);
-    // }
-
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -78,17 +73,6 @@ class Employee extends Model
             ->logOnlyDirty();
     }
 
-    // public function performanceStandards()
-    // {
-    //     return $this->hasManyThrough(
-    //         PerformanceStandard::class,
-    //         TargetPeriod::class,
-    //         'control_no',        // FK on target_periods
-    //         'target_period_id',  // FK on performance_standards
-    //         'ControlNo',         // Local key on employees
-    //         'id'                 // Local key on target_periods
-    //     );
-    // }
     public function officeOpcr()
     {
         return $this->belongsTo(Opcr::class);
@@ -97,14 +81,6 @@ class Employee extends Model
     public function signatories()
     {
         return $this->hasOne(DocumentSignatory::class, 'control_no', 'ControlNo');
-        //                                              ^ FK on document_signatories   ^ local key on employees
+
     }
-
-    // // for opcr
-    // public function officeHeadTargetPeriod()
-    // {
-    //     return $this->hasOne(TargetPeriod::class, 'control_no', 'ControlNo');
-    //     // or hasMany if an employee has multiple
-    // }
-
 }
