@@ -259,7 +259,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/unit-workplan/sync-ipcr-opcr',    [SpmsProcessController::class, 'syncUnitWorkPlanIpcrOpcr']);
     });
 
-    /*
+    /*E
     |----------------------------------------------------------------------
     | Unit Work Plan
     |----------------------------------------------------------------------
@@ -271,6 +271,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/store',   [UnitWorkPlanController::class, 'addUnitWorkPlan'])->withoutMiddleware(['auth:sanctum']);
         Route::post('/update',  [UnitWorkPlanController::class, 'updateUnitWorkPlan'])->withoutMiddleware(['auth:sanctum']);
         Route::delete('/delete/{controlNo}/{semester}/{year}', [UnitWorkPlanController::class, 'deleteUnitWorkPlan']);
+        Route::delete('/delete/performance-standard/{performanceStandardId}', [UnitWorkPlanController::class, 'deletePerformanceStandard']);
+
     });
 
     /*
@@ -284,9 +286,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/office-employee',          [vwActiveController::class,  'getOfficeEmployee']);
         Route::get('/by-office',                [EmployeeController::class,  'listOfEmployee']);
         Route::post('/store',                   [EmployeeController::class,  'addEmployee']);
-        Route::post('v1/store',                 [EmployeeController::class,  'addEmployee']);
         Route::post('/rank/{id}',               [EmployeeController::class,  'updateRank']);
-        Route::post('/title/{employeeId}',      [EmployeeController::class,  'updateJobTitle']);
+        Route::post('/title/{controlNo}',      [EmployeeController::class,  'updateJobTitle']);
         Route::get('/search',                   [EmployeeController::class,  'searchEmployee']);
         Route::delete('/delete/{id}',           [EmployeeController::class,  'deleteEmployee']);
         Route::get('/list-of-Head',             [EmployeeController::class,  'listOfHead']);
@@ -295,6 +296,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/component/{employeeId}',                         [EmployeeController::class,  'updateEmployeeComponent']);
         Route::get('/{controlNo}',              [UnitWorkPlanController::class, 'findEmployee']);
     });
+
+
+
 
     /*
     |----------------------------------------------------------------------
