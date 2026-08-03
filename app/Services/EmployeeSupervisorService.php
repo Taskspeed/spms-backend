@@ -9,6 +9,7 @@ use App\Models\opcr;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class EmployeeSupervisorService
@@ -26,7 +27,7 @@ class EmployeeSupervisorService
         if (!$controlNo) return null;  // or throw an exception
 
         // ── Fetch the logged-in supervisor's own employee record ──────────────────
-        $selfEmployee = Employee::select(
+        $selfEmployee = Employee::select( //vwEmployee
             'id',
             'name',
             'rank',
@@ -51,10 +52,16 @@ class EmployeeSupervisorService
         if (!$selfEmployee) return null;
 
         // ── Build hierarchy from the employee's own DB columns ───────────────────
+        Log::info('before hierarchy', ['controlNo' => $selfEmployee->ControlNo]);
         $hierarchy = $this->buildHierarchyFromEmployee($selfEmployee);
+        Log::info('hierarchy done');
+        
 
         // ── Resolve signatories ───────────────────────────────────────────────────
+  
+        Log::info('before signatories');
         $signatories = $this->resolveSignatories($selfEmployee, $selfEmployee->office_id, $year, $semester);
+        Log::info('signatories done');
 
         // ── Fetch existing target period for the logged-in supervisor ────────────
         $selfTargetPeriod = $selfEmployee->targetPeriods()
@@ -84,7 +91,7 @@ class EmployeeSupervisorService
         // ── Build the single employee object (the logged-in supervisor) ───────────
         $employeeData = [
             'id'                     => (string) $selfEmployee->id,
-            'controlNo'              => $selfEmployee->ControlNo,
+            'controlNo'              => $selfEmployee->ControlNo ?? null,
             'name'                   => $selfEmployee->name,
             'label'                  => $selfEmployee->name,
             'position'               => $selfEmployee->position,
@@ -107,11 +114,16 @@ class EmployeeSupervisorService
         ];
 
         // ── Get the full office structure for finding subordinates ────────────────
-        $structure     = $this->getStructureOffice($selfEmployee);
+        Log::info('before structure');
+        $structure = $this->getStructureOffice($selfEmployee);
+        Log::info('structure done');
+
         $structureData = json_decode($structure->getContent(), true);
 
         // Get subordinates list (same node employees)
+        Log::info('before findEmployeesSameNode');
         $employees = $this->findEmployeesSameNode($structureData, $controlNo);
+        Log::info('findEmployeesSameNode done');
 
         // Safely extract control numbers
         $employeeControlNos = collect($employees)->map(function ($employee) {
@@ -173,7 +185,7 @@ class EmployeeSupervisorService
                     'control_no'             => $existing->control_no,
                     'year'                   => $existing->year,
                     'semester'               => $existing->semester,
-                    'supervisory_control_no' => $existing->supervisory_control_no,
+                    'supervisory_control_no' => $existing->supervisory_control_no ?? null,
                     'status'                 => $latestRecord?->status ?? null,
                     'processed_by_name'      => $latestRecord?->processed_by_name ?? null,
                     'date'                   => $latestRecord?->date ?? null,
@@ -197,12 +209,14 @@ class EmployeeSupervisorService
             ];
         });
 
+
         return [
             'hierarchy'    => $hierarchy,
             'employee'     => $employeeData,
             // 'subordinates' => $employeesWithIpcr,
         ];
     }
+
     private function findEmployeesSameNode(array $structure, string $controlNo): array
     {
         foreach ($structure as $officeData) {
@@ -439,7 +453,7 @@ class EmployeeSupervisorService
             ->first();
 
         $officeHeadData = $officeHead ? array_merge([
-            'controlNo' => $officeHead->ControlNo,
+            'controlNo' => $officeHead->ControlNo ?? null,
             'name'      => $officeHead->name,
             'position'  => $officeHead->position,
             'rank'      => $officeHead->rank,
@@ -506,12 +520,12 @@ class EmployeeSupervisorService
 
             if ($divisionHead) {
                 $supervisorySignatory = array_merge([
-                    'controlNo' => $sectionHead->ControlNo,
-                    'name'      => $sectionHead->name,
-                    'position'  => $sectionHead->position,
-                    'rank'      => $sectionHead->rank,
-                    'jobTitle'  => $sectionHead->job_title,
-                ], $this->getSignatoryTargetPeriod($sectionHead->ControlNo, $year, $semester));
+                    'controlNo' => $divisionHead->ControlNo,
+                    'name'      => $divisionHead->name,
+                    'position'  => $divisionHead->position,
+                    'rank'      => $divisionHead->rank,
+                    'jobTitle'  => $divisionHead->job_title,
+                ], $this->getSignatoryTargetPeriod($divisionHead->ControlNo, $year, $semester));
             }
         }
 
