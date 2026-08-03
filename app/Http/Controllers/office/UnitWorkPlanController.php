@@ -9,8 +9,9 @@ use App\Http\Resources\UnitWorkPlanOrganizationResource;
 use App\Http\Resources\UnitWorkPlanResource;
 use App\Models\Employee;
 
-use App\Services\UnitWorkPlanService;
+use App\Models\PerformanceStandard;
 
+use App\Services\UnitWorkPlanService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
@@ -72,7 +73,7 @@ class UnitWorkPlanController extends BaseController
     // find employee
     public function findEmployee(string $controlNo)
     {
-        $employee = Employee::where('ControlNo', $controlNo)->with(['targetPeriods'])->first();
+        $employee = Employee::where('ControlNo', $controlNo)->with(['targetPeriods'])->first(); // vwEmployee
 
 
         if (!$employee) {
@@ -89,7 +90,7 @@ class UnitWorkPlanController extends BaseController
     // view the unitworkplant of the employee based on controlno , semester and year
     public function getUnitworkplan(string $controlNo, string $semester, int $year)
     {
-        $employee = Employee::where('ControlNo', $controlNo)
+        $employee = Employee::where('ControlNo', $controlNo)  // vwEmployee
             ->with([
                 'targetPeriods' => function ($q) use ($year, $semester) {
                     $q->select('id', 'control_no', 'year', 'semester',)
@@ -114,7 +115,7 @@ class UnitWorkPlanController extends BaseController
     public function deleteUnitWorkPlan(string $controlNo, string $semester, int $year)
     {
         // ✅ STEP 1: Find employee with office restriction
-        $employee = Employee::where('ControlNo', $controlNo)
+        $employee = Employee::where('ControlNo', $controlNo) // vwEmployee
             ->where('office_id', $this->officeId)
             ->firstOrFail();
 
@@ -166,6 +167,24 @@ class UnitWorkPlanController extends BaseController
         $result = $this->unitWorkPlanService->supervisoryDeductionOfSuccessIndicator($year, $semester, $mfo);
 
         return $result;
+    }
+
+    public function deletePerformanceStandard(int $performanceStandardId)
+    {
+        try {
+
+          $deleted = PerformanceStandard::find($performanceStandardId);
+
+          if ($deleted) {
+            $deleted->delete();
+            return $this->successMessage($deleted, 'Performance Standard deleted successfully.', 200);
+          } else {
+            return $this->errorMessage('Performance Standard not found.', 404);
+          }
+
+        } catch (\Exception $e) {
+            return $this->errorMessage('An error occurred while deleting the Performance Standard.', 500);
+        }
     }
 
 }
