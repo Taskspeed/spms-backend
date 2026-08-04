@@ -3,18 +3,19 @@
 namespace App\Services;
 
 use App\Events\OpcrEvent;
-use App\Models\opcr;
 use App\Models\Employee;
 use App\Models\OfficeOpcr;
 use App\Models\OfficeOpcrRecord;
-use Illuminate\Support\Facades\DB;
+use App\Models\opcr;
+use function Symfony\Component\Clock\now;
 use Illuminate\Support\Facades\Auth;
 
-use function Symfony\Component\Clock\now;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OpcrService
 {
-    
+
     // store opcr
     public function storeAllotedBudget(?array $validatedData)
     {
@@ -68,28 +69,26 @@ class OpcrService
         try {
             $records = [];
 
-            foreach ($validatedData as $data) {
-                // ✅ Capture the returned model instance
+            foreach ($validatedData['data'] as $data) {
                 $record = opcr::updateOrCreate(
                     [
                         'office_id' => $officeId,
                         'performance_standard_id' => $data['performance_standard_id'],
+
                     ],
                     [
                         'budget' => $data['budget'],
                         'accountable' => $data['accountable'],
-                        'accomplishment' => $data['accomplishment'],
+                        'accomplishment' => $data['accomplishment'] ?? null,
                     ]
+
                 );
 
-                // ✅ Add to the records array
                 $records[] = $record;
             }
 
             DB::commit();
-
-            return $records; // ✅ Now this will have data!
-
+            return $records;
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -131,7 +130,7 @@ class OpcrService
             ->where('semester', $semester)
             ->where('year', $year)
             ->whereHas('officeOpcrRecordLastestRecord', function ($query) {
-                $query->whereIn('status', ['Received Target','Reviewed Target','Returned Target',]);
+                $query->whereIn('status', ['Received Target', 'Reviewed Target', 'Returned Target',]);
             })->get();
 
         return $data;
