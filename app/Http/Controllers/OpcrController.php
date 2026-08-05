@@ -70,7 +70,7 @@ class OpcrController extends BaseController
     {
         $validated = $request->validated();
 
-        $opcr = $this->opcrService->updateAllotedBudget($validated);
+        $opcr = $this->opcrService->updateAllotedBudget($validated);//
 
         return $this->successMessage($opcr, 'Opcr update successfully', 200);
     }
