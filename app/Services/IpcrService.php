@@ -32,7 +32,7 @@ class IpcrService
     use ApiResponseTrait;
     public function opcrOfficeHead(string $controlNo, string $semester, int $year)
     {
-        $officeHeadOpcr = Employee::select('id', 'ControlNo', 'name', 'office_id', 'office')
+        $officeHeadOpcr = Employee::select('id', 'ControlNo', 'name', 'office_id', 'office','position')
             ->where('ControlNo', $controlNo)
             ->whereHas('targetPeriods', function ($q) use ($year, $semester) {
                 $q->where('year', $year)->where('semester', $semester);

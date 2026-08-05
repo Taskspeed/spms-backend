@@ -21,6 +21,7 @@ class OpcrResource extends JsonResource
             'name'       => $employee->name,
             'office_id'  => $employee->office_id,
             'office'     => $employee->office,
+            'position'     => $employee->position,
             'opcr_status'     => $opcr_status?->officeOpcrRecordLastestRecord->status,
             'office_opcr_id'     => $opcr_status?->id,
 
