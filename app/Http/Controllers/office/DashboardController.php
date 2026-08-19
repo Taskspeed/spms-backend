@@ -185,7 +185,7 @@ class DashboardController extends Controller
 
 
     
-    private function opcrOfficeHead(string $controlNo,int $year, string $semester)
+    private function opcrOfficeHead(string $controlNo, ?int $year, ?string $semester)
     {
         $officeHeadOpcr = Employee::select('id', 'ControlNo', 'name', 'office_id', 'office')
             ->where('ControlNo', $controlNo)
