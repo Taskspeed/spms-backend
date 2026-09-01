@@ -250,29 +250,7 @@ class UnitWorkPlanService
             ->where('year', $request->year)
             ->first();
 
-        /**
-         * ===============================
-         * FINAL RESPONSE
-         * ===============================
-         */
-
-        // checking  the status of the unit work plan on the office
-        // Trackers
-
-        // $unitworkplan = \App\Models\UnitWorkPlanRecord::where('office_name', $request->office_name) // ⚠️ fix typo (offiice_name)
-        //     ->where('year', $request->year)
-        //     ->where('semester', $request->semester)
-
-        //     ->first();
-
-        // If no record → Pending
-        // $unitWorkPlanStatus = $unitworkplan ? $unitworkplan->status : 'Draft';
-
-
-        // $unitworkplan = UnitWorkPlan::with('unitworkplanRecord')->where('office_name', $request->office_name) // ⚠️ fix typo (offiice_name)
-        //     ->where('year', $request->year)
-        //     ->where('semester', $request->semester)
-        //     ->first();
+        
         $unitworkplan_status = UnitWorkPlan::with([
             'unitworkplanLastestRecord' => function ($query) {
                 $query->select(
@@ -412,7 +390,7 @@ class UnitWorkPlanService
         }
 
         // Get the managerial's target period
-        $targetPeriod = TargetPeriod::with('performanceStandards')
+        $targetPeriod = TargetPeriod::with('performanceStandards.configurations')
             ->where('control_no', $managerial->ControlNo)
             ->where('year', $year)
             ->where('semester', $semester)
@@ -426,7 +404,7 @@ class UnitWorkPlanService
         }
 
         // Get ALL target periods in this office for this year/semester (excluding Department Head)
-        $allOtherTargetPeriods = TargetPeriod::with('performanceStandards')
+        $allOtherTargetPeriods = TargetPeriod::with('performanceStandards.configurations')
             ->where('office_id', $user->office_id)
             ->where('year', $year)
             ->where('semester', $semester)
@@ -441,18 +419,39 @@ class UnitWorkPlanService
          * - belong to a direct report of $controlNo (matched via standard->supervisory_control_no)
          * - match the given $mfoKey
          */
+     
+        // $getTotalClaimed = function (string $controlNo, string $mfoKey) use (
+        //     $allOtherTargetPeriods
+        // ) {
+        //     $claimed = 0;
+
+        //     foreach ($allOtherTargetPeriods as $reportPeriod) {
+        //         $matchedStandards = $reportPeriod->performanceStandards->filter(
+        //             fn($s) => $s->mfo === $mfoKey
+        //                 && $s->supervisory_control_no === $controlNo
+        //                 && $s->category !== 'C. SUPPORT FUNCTION'   // exclude support function from claiming
+        //         );
+
+        //         foreach ($matchedStandards as $standard) {
+        //             $claimed += $this->extractNumber($standard->success_indicator);
+        //         }
+        //     }
+
+        //     return $claimed;
+        // };
         $getTotalClaimed = function (string $controlNo, string $mfoKey) use (
             $allOtherTargetPeriods
         ) {
             $claimed = 0;
 
             foreach ($allOtherTargetPeriods as $reportPeriod) {
-                // Filter standards where:
-                // 1. mfo matches
-                // 2. supervisory_control_no on the standard points to $controlNo
                 $matchedStandards = $reportPeriod->performanceStandards->filter(
                     fn($s) => $s->mfo === $mfoKey
                         && $s->supervisory_control_no === $controlNo
+                        && $s->category !== 'C. SUPPORT FUNCTION'
+                        && !$s->configurations->contains(
+                            fn($config) => $config->quantity_indicator === 'C'
+                        )
                 );
 
                 foreach ($matchedStandards as $standard) {
