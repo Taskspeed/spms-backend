@@ -439,7 +439,7 @@ class UnitWorkPlanService
 
         //     return $claimed;
         // };
-        $getTotalClaimed = function (string $controlNo, string $mfoKey) use (
+        $getTotalClaimed = function (string $controlNo, string $mfoKey,string $outputKey) use (
             $allOtherTargetPeriods
         ) {
             $claimed = 0;
@@ -447,6 +447,7 @@ class UnitWorkPlanService
             foreach ($allOtherTargetPeriods as $reportPeriod) {
                 $matchedStandards = $reportPeriod->performanceStandards->filter(
                     fn($s) => $s->mfo === $mfoKey
+                           && $s->output_name === $outputKey   // ⬅️ dagdag na filter
                         && $s->supervisory_control_no === $controlNo
                         && $s->category !== 'C. SUPPORT FUNCTION'
                         && !$s->configurations->contains(
@@ -462,15 +463,55 @@ class UnitWorkPlanService
             return $claimed;
         };
 
+                // ⬇️ dagdag mo dito, pagkatapos ng $getTotalClaimed
+        $isExcludedFromAvailable = function ($standard) {
+            return $standard->category === 'C. SUPPORT FUNCTION'
+                || $standard->configurations->contains(
+                    fn($config) => $config->quantity_indicator === 'C'
+                );
+        };
+
         // Build managerial MFOs — claimed = sum of subordinates' standards pointing to this managerial
         $standards = $mfo
             ? $targetPeriod->performanceStandards->where('mfo', $mfo)
             : $targetPeriod->performanceStandards;
 
-        $result = $standards->map(function ($standard) use ($getTotalClaimed, $managerial) {
+        // $result = $standards->map(function ($standard) use ($getTotalClaimed, $managerial) {
+        //     $totalTarget = $this->extractNumber($standard->success_indicator);
+        //     $claimed     = $getTotalClaimed($managerial->ControlNo, $standard->mfo);
+        //     $available   = $totalTarget - $claimed;
+
+        //     return [
+        //         'category'              => $standard->category,
+        //         'mfo'                   => $standard->mfo,
+        //         'output'                => $standard->output,
+        //         'output_name'           => $standard->output_name,
+        //         'performance_indicator' => $standard->performance_indicator,
+        //         'success_indicator'     => $standard->success_indicator,
+        //         'total_target'          => $totalTarget,
+        //         'claimed'               => $claimed,
+        //         'available'             => max(0, $available),
+        //     ];
+        // });
+        $result = $standards->map(function ($standard) use ($getTotalClaimed, $managerial, $isExcludedFromAvailable) {
             $totalTarget = $this->extractNumber($standard->success_indicator);
-            $claimed     = $getTotalClaimed($managerial->ControlNo, $standard->mfo);
-            $available   = $totalTarget - $claimed;
+
+            if ($isExcludedFromAvailable($standard)) {
+                return [
+                    'category'              => $standard->category,
+                    'mfo'                   => $standard->mfo,
+                    'output'                => $standard->output,
+                    'output_name'           => $standard->output_name,
+                    'performance_indicator' => $standard->performance_indicator,
+                    'success_indicator'     => $standard->success_indicator,
+                    'total_target'          => $totalTarget,
+                    'claimed'               => 0,
+                    'available'             => $totalTarget, // walang kaltas — buo pa rin
+                ];
+            }
+
+            $claimed   = $getTotalClaimed($managerial->ControlNo, $standard->mfo,$standard->output_name);
+            $available = $totalTarget - $claimed;
 
             return [
                 'category'              => $standard->category,
@@ -489,7 +530,8 @@ class UnitWorkPlanService
         $subordinatesData = $allOtherTargetPeriods->map(function ($tp) use (
             $allEmployees,
             $getTotalClaimed,
-            $mfo
+            $mfo,
+            $isExcludedFromAvailable 
         ) {
             $employee = $allEmployees->get($tp->control_no);
 
@@ -507,13 +549,30 @@ class UnitWorkPlanService
                 ];
             }
 
-            $mfos = $standards->map(function ($standard) use ($tp, $getTotalClaimed) {
-                $totalTarget = $this->extractNumber($standard->success_indicator);
+            // $mfos = $standards->map(function ($standard) use ($tp, $getTotalClaimed) {
+            //     $totalTarget = $this->extractNumber($standard->success_indicator);
 
-                // Claimed = standards from others that point to THIS person's control_no
-                $claimed   = $getTotalClaimed($tp->control_no, $standard->mfo);
-                $available = $totalTarget - $claimed;
+            //     // Claimed = standards from others that point to THIS person's control_no
+            //     $claimed   = $getTotalClaimed($tp->control_no, $standard->mfo);
+            //     $available = $totalTarget - $claimed;
 
+            //     return [
+            //         'category'               => $standard->category,
+            //         'mfo'                    => $standard->mfo,
+            //         'output'                 => $standard->output,
+            //         'output_name'            => $standard->output_name,
+            //         'performance_indicator'  => $standard->performance_indicator,
+            //         'success_indicator'      => $standard->success_indicator,
+            //         'supervisory_control_no' => $standard->supervisory_control_no,
+            //         'total_target'           => $totalTarget,
+            //         'claimed'                => $claimed,
+            //         'available'              => max(0, $available),
+            //     ];
+            // });
+            $mfos = $standards->map(function ($standard) use ($tp, $getTotalClaimed, $isExcludedFromAvailable) {
+            $totalTarget = $this->extractNumber($standard->success_indicator);
+
+            if ($isExcludedFromAvailable($standard)) {
                 return [
                     'category'               => $standard->category,
                     'mfo'                    => $standard->mfo,
@@ -523,10 +582,27 @@ class UnitWorkPlanService
                     'success_indicator'      => $standard->success_indicator,
                     'supervisory_control_no' => $standard->supervisory_control_no,
                     'total_target'           => $totalTarget,
-                    'claimed'                => $claimed,
-                    'available'              => max(0, $available),
+                    'claimed'                => 0,
+                    'available'              => $totalTarget, // walang kaltas
                 ];
-            });
+            }
+
+            $claimed   = $getTotalClaimed($tp->control_no, $standard->mfo,$standard->output_name);
+            $available = $totalTarget - $claimed;
+
+            return [
+                'category'               => $standard->category,
+                'mfo'                    => $standard->mfo,
+                'output'                 => $standard->output,
+                'output_name'            => $standard->output_name,
+                'performance_indicator'  => $standard->performance_indicator,
+                'success_indicator'      => $standard->success_indicator,
+                'supervisory_control_no' => $standard->supervisory_control_no,
+                'total_target'           => $totalTarget,
+                'claimed'                => $claimed,
+                'available'              => max(0, $available),
+            ];
+        });
 
             return [
                 'controlNo'  => $tp->control_no,
