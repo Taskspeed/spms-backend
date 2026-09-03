@@ -10,7 +10,7 @@ use App\Http\Resources\TargetPeriodRatingResource;
 use App\Http\Resources\TargetPeriodRatingWeeksResource;
 use App\Models\PerformanceRating;
 use App\Models\TargetPeriod;
-use App\Services\PerformanceRatingService;
+use App\Services\Erms\PerformanceRatingService;
 use App\Services\TargetPeriodService;
 use App\Traits\ApiResponseTrait;
 
@@ -20,11 +20,12 @@ class EmployeeRatingController extends Controller
 
     // service
     protected TargetPeriodService $targetperiodService;
-    
+    protected  PerformanceRatingService $performanceRatingService;
 
-    public function __construct(TargetPeriodService $targetperiodService)
+    public function __construct(TargetPeriodService $targetperiodService,PerformanceRatingService $performanceRatingService)
     {
-        return $this->targetperiodService = $targetperiodService;
+       $this->targetperiodService = $targetperiodService;
+       $this->performanceRatingService = $performanceRatingService;
     }
 
     // target period of employee
@@ -56,11 +57,11 @@ class EmployeeRatingController extends Controller
     }
 
     // employee store his rate
-    public function performanceRating(performanceRatingStoreRequest $request, PerformanceRatingService $performanceRatingService)
+    public function performanceRating(performanceRatingStoreRequest $request)
     {
         $validated = $request->validated();
 
-        $rating = $performanceRatingService->performanceRatingStore($validated);
+        $rating = $this->performanceRatingService->performanceRatingStore($validated);
 
         return response()->json([
             'status' => true,
