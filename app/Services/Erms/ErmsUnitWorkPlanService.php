@@ -53,26 +53,50 @@ class ErmsUnitWorkPlanService
          * - belong to a direct report of $controlNo (matched via standard->supervisory_control_no)
          * - match the given $mfoKey
          */
-        $getTotalClaimed = function (string $controlNo, string $mfoKey) use (
-            $allOtherTargetPeriods
-        ) {
-            $claimed = 0;
+    
+            $getTotalClaimed = function (string $controlNo, string $mfoKey, ?string $outputKey) use (
+                $allOtherTargetPeriods, $allEmployees
+            ) {
+                $claimed = 0;
 
-            foreach ($allOtherTargetPeriods as $reportPeriod) {
-                // Filter standards where:
-                // 1. mfo matches
-                // 2. supervisory_control_no on the standard points to $controlNo
-                $matchedStandards = $reportPeriod->performanceStandards->filter(
-                    fn($s) => $s->mfo === $mfoKey
-                        && $s->supervisory_control_no === $controlNo
-                );
+                // Base natin dito kung managerial talaga ang "parent" (yung tinuturo ng supervisory_control_no)
+                $parentEmployee     = $allEmployees->get($controlNo);
+                $parentIsManagerial = $parentEmployee && $parentEmployee->rank === 'Managerial';
 
-                foreach ($matchedStandards as $standard) {
-                    $claimed += $this->extractNumber($standard->success_indicator);
+                foreach ($allOtherTargetPeriods as $reportPeriod) {
+                    $matchedStandards = $reportPeriod->performanceStandards->filter(
+                        function ($s) use ($mfoKey, $outputKey, $controlNo, $parentIsManagerial) {
+                            if ($s->mfo !== $mfoKey) return false;
+                            if ($s->supervisory_control_no !== $controlNo) return false;
+                            if ($s->category === 'C. SUPPORT FUNCTION') return false;
+                            if ($s->configurations->contains(fn($config) => $config->quantity_indicator === 'C')) {
+                                return false;
+                            }
+
+                            // Managerial parent => mfo lang ang basehan.
+                            // Non-managerial parent => kailangan match din ang output_name.
+                            if (!$parentIsManagerial) {
+                                return $s->output_name === $outputKey;
+                            }
+
+                            return true;
+                        }
+                    );
+
+                    foreach ($matchedStandards as $standard) {
+                        $claimed += $this->extractNumber($standard->success_indicator);
+                    }
                 }
-            }
 
-            return $claimed;
+                return $claimed;
+            };
+
+                // ⬇️ dagdag mo dito, pagkatapos ng $getTotalClaimed
+        $isExcludedFromAvailable = function ($standard) {
+            return $standard->category === 'C. SUPPORT FUNCTION'
+                || $standard->configurations->contains(
+                    fn($config) => $config->quantity_indicator === 'C'
+                );
         };
 
         // Build managerial MFOs — claimed = sum of subordinates' standards pointing to this managerial
@@ -80,10 +104,25 @@ class ErmsUnitWorkPlanService
             ? $targetPeriod->performanceStandards->where('mfo', $mfo)
             : $targetPeriod->performanceStandards;
 
-        $result = $standards->map(function ($standard) use ($getTotalClaimed, $managerial) {
+        $result = $standards->map(function ($standard) use ($getTotalClaimed, $managerial, $isExcludedFromAvailable) {
             $totalTarget = $this->extractNumber($standard->success_indicator);
-            $claimed     = $getTotalClaimed($managerial->ControlNo, $standard->mfo);
-            $available   = $totalTarget - $claimed;
+
+            if ($isExcludedFromAvailable($standard)) {
+                return [
+                    'category'              => $standard->category,
+                    'mfo'                   => $standard->mfo,
+                    'output'                => $standard->output,
+                    'output_name'           => $standard->output_name,
+                    'performance_indicator' => $standard->performance_indicator,
+                    'success_indicator'     => $standard->success_indicator,
+                    'total_target'          => $totalTarget,
+                    'claimed'               => 0,
+                    'available'             => $totalTarget, // walang kaltas — buo pa rin
+                ];
+            }
+
+            $claimed   = $getTotalClaimed($managerial->ControlNo, $standard->mfo, $standard->output_name);
+            $available = $totalTarget - $claimed;
 
             return [
                 'category'              => $standard->category,
@@ -102,7 +141,8 @@ class ErmsUnitWorkPlanService
         $subordinatesData = $allOtherTargetPeriods->map(function ($tp) use (
             $allEmployees,
             $getTotalClaimed,
-            $mfo
+            $mfo,
+            $isExcludedFromAvailable 
         ) {
             $employee = $allEmployees->get($tp->control_no);
 
@@ -120,13 +160,10 @@ class ErmsUnitWorkPlanService
                 ];
             }
 
-            $mfos = $standards->map(function ($standard) use ($tp, $getTotalClaimed) {
-                $totalTarget = $this->extractNumber($standard->success_indicator);
+            $mfos = $standards->map(function ($standard) use ($tp, $getTotalClaimed, $isExcludedFromAvailable) {
+            $totalTarget = $this->extractNumber($standard->success_indicator);
 
-                // Claimed = standards from others that point to THIS person's control_no
-                $claimed   = $getTotalClaimed($tp->control_no, $standard->mfo);
-                $available = $totalTarget - $claimed;
-
+            if ($isExcludedFromAvailable($standard)) {
                 return [
                     'category'               => $standard->category,
                     'mfo'                    => $standard->mfo,
@@ -136,10 +173,27 @@ class ErmsUnitWorkPlanService
                     'success_indicator'      => $standard->success_indicator,
                     'supervisory_control_no' => $standard->supervisory_control_no,
                     'total_target'           => $totalTarget,
-                    'claimed'                => $claimed,
-                    'available'              => max(0, $available),
+                    'claimed'                => 0,
+                    'available'              => $totalTarget, // walang kaltas
                 ];
-            });
+            }
+
+            $claimed   = $getTotalClaimed($tp->control_no, $standard->mfo,$standard->output_name);
+            $available = $totalTarget - $claimed;
+
+            return [
+                'category'               => $standard->category,
+                'mfo'                    => $standard->mfo,
+                'output'                 => $standard->output,
+                'output_name'            => $standard->output_name,
+                'performance_indicator'  => $standard->performance_indicator,
+                'success_indicator'      => $standard->success_indicator,
+                'supervisory_control_no' => $standard->supervisory_control_no,
+                'total_target'           => $totalTarget,
+                'claimed'                => $claimed,
+                'available'              => max(0, $available),
+            ];
+        });
 
             return [
                 'controlNo'  => $tp->control_no,
