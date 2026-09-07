@@ -272,7 +272,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update',  [UnitWorkPlanController::class, 'updateUnitWorkPlan'])->withoutMiddleware(['auth:sanctum']);
         Route::delete('/delete/{controlNo}/{semester}/{year}', [UnitWorkPlanController::class, 'deleteUnitWorkPlan']);
         Route::delete('/delete/performance-standard/{performanceStandardId}', [UnitWorkPlanController::class, 'deletePerformanceStandard']);
-
+        Route::get('/output', [UnitWorkPlanController::class, 'getCommonOutput'])->withoutMiddleware(['auth:sanctum']);
     });
 
     /*
@@ -351,6 +351,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/office',           [PmtController::class, 'office']);
         Route::get('/ipcr',             [PmtController::class, 'listOfEmployeeIpcr']);
         Route::get('/office-employee',  [PmtController::class, 'getOfficeEmployeePmt']);
+        Route::get('/list',  [PmtController::class, 'listOfPmtMember']); // list of pmt 
     });
 
     /*
@@ -363,7 +364,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/ipcr',                 [SupervisorController::class, 'getAdvisoryEmployeeIpcr']);
         Route::post('/update/ipcr',         [SupervisorController::class, 'updateIpcr']);
         Route::get('/list/employee/ipcr',   [SupervisorController::class, 'getSupervisor']);
-        Route::post('/update/performance-rating',   [SupervisorController::class, 'updatePerformanceRatingEmployee']); // approve the performance rating of employee
+        // Route::post('/update/performance-rating',   [SupervisorController::class, 'updatePerformanceRatingEmployee']); // approve the performance rating of employee
+        Route::put('/update/performance-rating/{performanceRatingId}',   [SupervisorController::class, 'updatePerformanceRatingEmployee']); // approve the performance rating of employee
+
     });
 
 
