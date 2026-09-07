@@ -16,6 +16,7 @@ use function PHPUnit\Framework\returnCallback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class SupervisorController extends Controller
 {
@@ -149,28 +150,48 @@ class SupervisorController extends Controller
         return $this->successMessage($data, 'Successfully', 200);
     }
 
-    // updating performance rating of employee
-    public function updatePerformanceRatingEmployee(Request $request)
+    // // updating performance rating of employee
+    // public function updatePerformanceRatingEmployee(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'ratings'                            => 'required|array',
+    //         'ratings.*.target_period_id'  => 'required|exists:target_periods,id',
+    //         'ratings.*.week'                     => 'required|string',
+    //         'ratings.*.status'                   => 'required|string',
+    //     ]);
+
+    //     foreach ($validatedData['ratings'] as $rating) {
+    //         RatingWeek::updateOrCreate(
+    //             [
+    //                 'target_period_id' => $rating['target_period_id'],
+    //                 'week'                    => $rating['week'],
+    //             ],
+    //             [
+    //                 'status' => $rating['status'],
+    //             ]
+    //         );
+    //     }
+
+    //     return $this->successMessage('Performance rating status updated successfully.');
+    // }
+
+    public function updatePerformanceRatingEmployee(Request $request, int $performanceRatingId)
     {
-        $validatedData = $request->validate([
-            'ratings'                            => 'required|array',
-            'ratings.*.target_period_id'  => 'required|exists:target_periods,id',
-            'ratings.*.week'                     => 'required|string',
-            'ratings.*.status'                   => 'required|string',
+        $validated = $request->validate([
+             'status'  => ['required', 'string', Rule::in(['Approved', 'Disapproved'])],
+             'remarks'     => 'nullable|string',
         ]);
 
-        foreach ($validatedData['ratings'] as $rating) {
-            RatingWeek::updateOrCreate(
-                [
-                    'target_period_id' => $rating['target_period_id'],
-                    'week'                    => $rating['week'],
-                ],
-                [
-                    'status' => $rating['status'],
-                ]
-            );
-        }
+        $rating  = PerformanceRating::find($performanceRatingId);
 
+            if(!$rating){
+                return $this->errorMessage('Rating not found',404);
+            }
+        $rating->update([
+           'status'  => $validated['status'],
+            'remarks' => $validated['remarks'] ?? null,
+        ]);
+  
         return $this->successMessage('Performance rating status updated successfully.');
     }
 }
