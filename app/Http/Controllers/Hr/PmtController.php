@@ -95,4 +95,12 @@ class PmtController extends BaseController
                 200
             );
         }
+
+        public function listOfPmtMember(){
+
+            $pmt = User::select('id','control_no','name','designation','pmt_type')->where('role_id',5)->get();
+
+            return $this->successMessage($pmt,'List of Pmt member',200);
+
+        }
 }
