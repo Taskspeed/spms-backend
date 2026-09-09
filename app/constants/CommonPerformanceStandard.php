@@ -23,7 +23,7 @@ class CommonPerformanceStandard
                         2 => '2-5 days after the deadline',
                         1 => 'After deadline',
                     ],
-                    'remarks' => 'Simple Reports',
+                    'required_output' => 'Simple Reports',
                 
             ],
 
@@ -43,7 +43,7 @@ class CommonPerformanceStandard
                         2 => '2-5 days after the deadline',
                         1 => '6 days or more after the deadline',
                     ],
-                    'remarks' => 'Complex Reports',
+                    'required_output' => 'Complex Reports',
                 
             ],
 
@@ -63,7 +63,7 @@ class CommonPerformanceStandard
                         2 => '4 days after the activity',
                         1 => '5 days after the activity',
                     ],
-                    'remarks' => 'Terminal Report as Participant',
+                    'required_output' => 'Terminal Report as Participant',
                 
             ],
 
@@ -83,7 +83,7 @@ class CommonPerformanceStandard
                         2 => '25 days after the activity',
                         1 => '30 days after the activity',
                     ],
-                    'remarks' => 'Terminal Report as Organizer',
+                    'required_output' => 'Terminal Report as Organizer',
                 
             ],
 
@@ -103,7 +103,7 @@ class CommonPerformanceStandard
                         2 => 'Within 30 minutes after receipt of instruction',
                         1 => 'Beyond 31 minutes after receipt of instruction',
                     ],
-                    'remarks' => 'Preparation of simple letters, memos, emails, messages',
+                    'required_output' => 'Preparation of simple letters, memos, emails, messages',
                 
             ],
 
@@ -123,7 +123,7 @@ class CommonPerformanceStandard
                         2 => 'Within 4 days after receipt of instruction',
                         1 => '5 days or more after receipt of instruction',
                     ],
-                    'remarks' => 'Preparation of long letters, executive orders, resolutions',
+                    'required_output' => 'Preparation of long letters, executive orders, resolutions',
                 
             ],
 
@@ -143,7 +143,7 @@ class CommonPerformanceStandard
                         2 => 'Within 14 hours after receipt of instruction',
                         1 => '16 hours and beyond after receipt of instruction',
                     ],
-                    'remarks' => 'Preparation of letters citing references, letters subject for research, with consultation',
+                    'required_output' => 'Preparation of letters citing references, letters subject for research, with consultation',
             
             ],
 
@@ -163,7 +163,7 @@ class CommonPerformanceStandard
                         2 => 'Within 7 days after receipt of instruction',
                         1 => '8 days and beyond after receipt of instruction',
                     ],
-                    'remarks' => 'Preparation of General types of contract / MOU or MOA',
+                    'required_output' => 'Preparation of General types of contract / MOU or MOA',
                 
             ],
 
@@ -183,7 +183,7 @@ class CommonPerformanceStandard
                     2 => 'Within 6 minutes after receipt of request',
                     1 => '7 minutes and beyond after receipt of request',
                 ],
-                'remarks' => 'Preparation of order of payment',
+                'required_output' => 'Preparation of order of payment',
 
             ],
 
@@ -203,12 +203,12 @@ class CommonPerformanceStandard
                     2 => 'Within 10 minutes after receipt of communication',
                     1 => '15 minutes and beyond after receipt of communication',
                 ],
-                'remarks' => 'Recording of communications in the Logbook or System',
+                'required_output' => 'Recording of communications in the Logbook or System',
             ],
 
-            'Financial Document' => [
+            'Financial Document (Actual)' => [
 
-                'actual' => [
+                
                     'effectiveness' => [
                         5 => 'Without revision & errors',
                         4 => ' ',
@@ -223,10 +223,9 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond 6 hours',
                     ],
-                    'remarks' => 'Refers to the actual preparation of each document with attachments',
-                ],
-
-                'processing' => [
+                    'required_output' => 'Refers to the actual preparation of each document with attachments',
+            
+                'Financial Document (Processing)' => [
                     'effectiveness' => [
                         5 => 'Without lapses',
                         4 => ' ',
@@ -241,7 +240,7 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond the scheduled time',
                     ],
-                    'remarks' => 'Refers to the processing of each document with attachments',
+                    'required_output' => 'Refers to the processing of each document with attachments',
                 ],
             ],
 
@@ -261,7 +260,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Late submission',
                 ],
-                'remarks' => 'Set deadline refers to the budget call regular budget preparation',
+                'required_output' => 'Set deadline refers to the budget call regular budget preparation',
 
             ],
 
@@ -281,7 +280,7 @@ class CommonPerformanceStandard
                     2 => 'Within 14 hours provided with complete attachments',
                     1 => '16 hours and beyond provided with complete attachments',
                 ],
-                'remarks' => 'Preparation of Liquidation Report',
+                'required_output' => 'Preparation of Liquidation Report',
             ],
 
             'Preventive Maintenance of Service Vehicle' => [
@@ -300,7 +299,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Beyond schedule',
                 ],
-                'remarks' => 'Conduct of vehicle maintenance in the assumption that this pertains to periodic maintenance',
+                'required_output' => 'Conduct of vehicle maintenance in the assumption that this pertains to periodic maintenance',
             ],
 
             'Service Vehicle Trips or Driving Services' => [
@@ -319,7 +318,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Beyond schedule',
                 ],
-                'remarks' => 'Timeliness refers to the call time set by the DH/Supervisor, gasoline in full tank and ready to go to the identified destination',
+                'required_output' => 'Timeliness refers to the call time set by the DH/Supervisor, gasoline in full tank and ready to go to the identified destination',
 
             ],
 
@@ -340,11 +339,10 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond schedule',
                     ],
-                    'remarks' => 'Timeliness refers to CRs being used by the office',
+                    'required_output' => 'Timeliness refers to CRs being used by the office',
                 
 
-           
-
+    
                 
             ],
                  'Clearning Services (Comfort Room)' => [
@@ -362,7 +360,7 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond schedule',
                     ],
-                    'remarks' => 'Timeliness refers to the availability of the document',
+                    'required_output' => 'Timeliness refers to the availability of the document',
                 ],
 
             'Activity/Training Design' => [
@@ -381,7 +379,7 @@ class CommonPerformanceStandard
                         2 => '2 days before the activity',
                         1 => 'On the day of the activity',
                     ],
-                    'remarks' => 'Preparation of the Project Design',
+                    'required_output' => 'Preparation of the Project Design',
 
                 ],
 
@@ -401,10 +399,10 @@ class CommonPerformanceStandard
                     2 => '12 working days',
                     1 => '15 working days',
                 ],
-                'remarks' => 'Preparation of the Project Design',
+                'required_output' => 'Preparation of the Project Design',
             ],
 
-            'Powerpoint Presentation/Other Technology Simple (text only)' => [
+            'Powerpoint Presentation/Other Technology (simple) - text only' => [
 
                 
                     'effectiveness' => [
@@ -421,12 +419,12 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond schedule',
                     ],
-                    'remarks' => 'Timeliness for this section refers to preparation of PPT Presentation per slide',
+                    'required_output' => 'Timeliness for this section refers to preparation of PPT Presentation per slide',
                 
 
                
             ],
-             'Powerpoint Presentation/Other Technology Complex (e.g. with 3D effects)' => [
+             'Powerpoint Presentation/Other Technology (complex) - e.g. with 3D effects' => [
                     'effectiveness' => [
                         5 => 'w/ 1 revision',
                         4 => 'w/ 2 revisions',
@@ -441,10 +439,10 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'Beyond schedule',
                     ],
-                    'remarks' => 'Timeliness for this section refers to preparation of PPT Presentation per slide',
+                    'required_output' => 'Timeliness for this section refers to preparation of PPT Presentation per slide',
                 ],
 
-            'Minutes of Meeting Simple (4 hours and below)' => [
+            'Minutes of Meeting (simple) - 4 hours and below' => [
              
                     'effectiveness' => [
                         5 => 'w/ 1 revision',
@@ -460,9 +458,9 @@ class CommonPerformanceStandard
                         2 => '4 days after the meeting',
                         1 => '5 days and beyond',
                     ],
-                    'remarks' => 'Timeliness refers to the preparation of minutes of meeting',
+                    'required_output' => 'Timeliness refers to the preparation of minutes of meeting',
             ],
-                'Minutes of Meeting Complex (beyond 4 hours)' => [
+                'Minutes of Meeting (complex) - beyond 4 hours' => [
                     'effectiveness' => [
                         5 => 'w/ 1 revision',
                         4 => 'w/ 2 revisions',
@@ -477,7 +475,7 @@ class CommonPerformanceStandard
                         2 => '8 days after the meeting',
                         1 => '9 days and beyond',
                     ],
-                    'remarks' => 'Timeliness refers to the preparation of minutes of meeting',
+                    'required_output' => 'Timeliness refers to the preparation of minutes of meeting',
                 ],
 
             'Meetings, Seminars and/or Conferences (Conduted)' => [
@@ -497,7 +495,7 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'After schedule',
                     ],
-                    'remarks' => 'Arrival at the venue before the scheduled time',
+                    'required_output' => 'Arrival at the venue before the scheduled time',
             
 
                 
@@ -517,10 +515,10 @@ class CommonPerformanceStandard
                         2 => ' ',
                         1 => 'After schedule',
                     ],
-                    'remarks' => 'Arrival at the venue before the scheduled time',
+                    'required_output' => 'Arrival at the venue before the scheduled time',
                 ],
 
-            'Daily Time Record (DTR) - (printing for Biometric Administrators)' => [
+            'Daily Time Record (DTR) - printing for Biometric Administrators' => [
 
                
                     'effectiveness' => [
@@ -537,10 +535,10 @@ class CommonPerformanceStandard
                         2 => 'Within 4th working day of the succeeding month',
                         1 => '5th working day and beyond of the succeeding month',
                     ],
-                    'remarks' => 'Actual printing of DTRs',
+                    'required_output' => 'Actual printing of DTRs',
             
             ],
-               'Daily Time Record (DTR) - (printing of DTRs for Employees)' => [
+               'Daily Time Record (DTR) - printing of DTRs for Employees' => [
                     'effectiveness' => [
                         5 => 'Without lapses',
                         4 => ' ',
@@ -555,7 +553,7 @@ class CommonPerformanceStandard
                         2 => 'Within 6 minutes upon receipt of DTR',
                         1 => '7 minutes & beyond upon receipt of DTR',
                     ],
-                    'remarks' => 'Actual signing of DTR from the concerned employee',
+                    'required_output' => 'Actual signing of DTR from the concerned employee',
                 ],
 
             'Monitoring and Coaching' => [
@@ -574,7 +572,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Within the semester',
                 ],
-                'remarks' => 'Conduct of Monitoring and Coaching Activity & Preparation of Coaching Report',
+                'required_output' => 'Conduct of Monitoring and Coaching Activity & Preparation of Coaching Report',
 
             ],
 
@@ -594,7 +592,7 @@ class CommonPerformanceStandard
                     2 => 'Within 4th working day of the succeeding month',
                     1 => '5th working day and beyond of the succeeding month',
                 ],
-                'remarks' => 'Preparation of MPORs / Office Level Submission',
+                'required_output' => 'Preparation of MPORs / Office Level Submission',
 
             ],
 
@@ -614,7 +612,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Beyond the deadline',
                 ],
-                'remarks' => 'Submission of IPCRs / CHRMO Submission',
+                'required_output' => 'Submission of IPCRs / CHRMO Submission',
 
             ],
 
@@ -634,7 +632,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Beyond the deadline set',
                 ],
-                'remarks' => 'Preparation of OPCRs / CPDO Submission',
+                'required_output' => 'Preparation of OPCRs / CPDO Submission',
 
             ],
 
@@ -654,7 +652,7 @@ class CommonPerformanceStandard
                     2 => ' ',
                     1 => 'Beyond the scheduled time',
                 ],
-                'remarks' => 'As per office schedule (98% of the total 24 hours)',
+                'required_output' => 'As per office schedule (98% of the total 24 hours)',
 
             ],
         ];

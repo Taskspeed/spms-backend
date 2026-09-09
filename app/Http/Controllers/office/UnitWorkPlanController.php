@@ -3,14 +3,18 @@
 
 namespace App\Http\Controllers\office;
 
+use App\constants\CommonPerformanceStandard;
+use App\constants\ListCommonPerformanceStandard;
+use App\constants\ListCoreCommonPerformanceStandard;
+use App\constants\ListSupportCommonPerformanceStandard;
 use App\Http\Requests\addEmployeeUnitWorkPlanRequest;
 use App\Http\Requests\updateEmployeeUnitWorkPlanRequest;
 use App\Http\Resources\UnitWorkPlanOrganizationResource;
+
 use App\Http\Resources\UnitWorkPlanResource;
+
 use App\Models\Employee;
-
 use App\Models\PerformanceStandard;
-
 use App\Services\UnitWorkPlanService;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -22,7 +26,7 @@ use Illuminate\Support\Facades\Auth;
 class UnitWorkPlanController extends BaseController
 {
     use ApiResponseTrait;
- 
+
     protected ?Authenticatable $user = null;
     protected ?int $officeId = null;
     protected  UnitWorkPlanService $unitWorkPlanService;
@@ -49,7 +53,6 @@ class UnitWorkPlanController extends BaseController
             $unitworkplan = $this->unitWorkPlanService->store($validated);
 
             return $this->successMessage($unitworkplan, 'Unit Work Plans for all employees created successfully.', 201);
-            
         } catch (\Exception $e) {
             return $this->errorMessage('Failed to create Unit Work Plan.', 500);
         }
@@ -86,7 +89,7 @@ class UnitWorkPlanController extends BaseController
         return $this->successMessage($employee, 'Employee found successfully.', 200);
     }
 
-    
+
     // view the unitworkplant of the employee based on controlno , semester and year
     public function getUnitworkplan(string $controlNo, string $semester, int $year)
     {
@@ -173,18 +176,41 @@ class UnitWorkPlanController extends BaseController
     {
         try {
 
-          $deleted = PerformanceStandard::find($performanceStandardId);
+            $deleted = PerformanceStandard::find($performanceStandardId);
 
-          if ($deleted) {
-            $deleted->delete();
-            return $this->successMessage($deleted, 'Performance Standard deleted successfully.', 200);
-          } else {
-            return $this->errorMessage('Performance Standard not found.', 404);
-          }
-
+            if ($deleted) {
+                $deleted->delete();
+                return $this->successMessage($deleted, 'Performance Standard deleted successfully.', 200);
+            } else {
+                return $this->errorMessage('Performance Standard not found.', 404);
+            }
         } catch (\Exception $e) {
             return $this->errorMessage('An error occurred while deleting the Performance Standard.', 500);
         }
     }
+    public function getCommonOutput(Request $request)
+    {
+        $output = $request->query('output');
+        $type   = $request->query('type');
 
+        if (!$output) {
+            return response()->json([]);
+        }
+
+        $result = CommonPerformanceStandard::get($output, $type);
+
+        return response()->json($result);
+    }
+
+    public function listOfCoreCommonPerformanceStandard()
+    {
+        $output = ListCoreCommonPerformanceStandard::all();
+        return response()->json($output);
+    }
+    
+    public function listOfSupportCommonPerformanceStandard()
+    {
+        $output = ListSupportCommonPerformanceStandard::all();
+        return response()->json($output);
+    }
 }

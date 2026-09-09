@@ -20,7 +20,7 @@ class TargetPeriodDetailsResource extends JsonResource
          'target_period_id' => $this->id,
          'name'   => $this->whenLoaded('employee', fn () => $this->employee?->name),
          'office' => $this->whenLoaded('employee', fn () => $this->employee?->office),
-        'week_status' => $this->week_status ?? 'No Rating',
+         'week_status' => $this->week_status ?? 'No Rating',
 
         // 'rating_weeks' => $this->whenLoaded('ratingWeeks', function () {
         //     return $this->ratingWeeks->map(function ($week) {
@@ -60,7 +60,7 @@ class TargetPeriodDetailsResource extends JsonResource
                         'performance_rating' => $standard->relationLoaded('performanceRating')
                             ? $standard->performanceRating->map(function ($rating) {
                                 return [
-                                    'id' => $rating->id,
+                                    'performance_rating_id' => $rating->id,
                                     'performance_standard_id' => $rating->performance_standard_id,
                                     'control_no' => $rating->control_no,
                                     'date' => $rating->date,
