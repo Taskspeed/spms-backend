@@ -272,9 +272,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/update',  [UnitWorkPlanController::class, 'updateUnitWorkPlan'])->withoutMiddleware(['auth:sanctum']);
         Route::delete('/delete/{controlNo}/{semester}/{year}', [UnitWorkPlanController::class, 'deleteUnitWorkPlan']);
         Route::delete('/delete/performance-standard/{performanceStandardId}', [UnitWorkPlanController::class, 'deletePerformanceStandard']);
-        Route::get('/output', [UnitWorkPlanController::class, 'getCommonOutput'])->withoutMiddleware(['auth:sanctum']);
         Route::get('/list/core/common/performance/standard', [UnitWorkPlanController::class, 'listOfCoreCommonPerformanceStandard']);
         Route::get('/list/support/common/performance/standard', [UnitWorkPlanController::class, 'listOfSupportCommonPerformanceStandard']);
+        Route::get('/output', [UnitWorkPlanController::class, 'getCommonOutput'])->withoutMiddleware(['auth:sanctum']);
 
     });
 
